@@ -25,8 +25,7 @@ const userSchema = new Schema({
     },
     favourites: [{
         type: Schema.Types.ObjectId,
-        ref: 'Book',
-        required: true
+        ref: 'Book'
     }]
 })
 

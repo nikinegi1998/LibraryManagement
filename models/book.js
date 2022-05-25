@@ -1,5 +1,7 @@
+// installed packages
 const mongoose  = require('mongoose');
 
+// files imported
 const Schema = mongoose.Schema;
 
 const booksSchema = new Schema({
