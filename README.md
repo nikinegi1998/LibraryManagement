@@ -8,9 +8,9 @@
 ## Setup
 Clone the repo and install the dependencies
 
-git clone https://github.com/nikinegi1998/LibraryManagement.git
-cd ./LibraryManagement
-npm install
+1. git clone https://github.com/nikinegi1998/LibraryManagement.git
+2. cd ./LibraryManagement
+3. npm install (to install all the dependencies)
 
 ## Steps for read-only access
 To start the express server, run the following
