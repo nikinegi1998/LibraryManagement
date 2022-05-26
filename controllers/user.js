@@ -108,3 +108,36 @@ exports.removeUser = (req, res, next)=>{
     })    
 }
 
+exports.getAllFavList = (req, res, next) =>{
+    const user = req.user;
+    console.log(user);
+
+    if(!user){
+        throw new Error('user not logged in');
+    }
+    Users.findById({_id: user._id})
+    .then(usr=>{
+        console.log(usr);
+
+        if(!usr){
+            throw new Error('user not found');
+        }   
+                
+        const favList = usr.favourites;
+
+        console.log(favList);
+        if(!favList){
+            return res.status(200).json({
+                message: 'No books added'
+            })
+        }
+
+        return res.status(200).json({
+            message: 'All favorites book fetched',
+            favorites : favList
+        })
+    })
+    .catch(err=>{
+        console.log(err.message);
+    })
+}

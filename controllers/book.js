@@ -1,4 +1,5 @@
 const Books = require('../models/book');
+const Users = require('../models/user')
 
 exports.getBooks = (req, res, next)=>{
     Books.find()
@@ -113,4 +114,68 @@ exports.removeBook = (req, res, next)=>{
     .catch(err=>{
         res.status(500).json({ message: 'Deleting books failed' });
     })    
+}
+
+exports.addToFav = (req, res, next) =>{
+    const bId = req.params.id;
+    const user = req.user;
+
+    if(!user){
+        throw new Error('user not logged in');
+    }
+    Users.findById({_id: user._id})
+    .then(usr=>{
+        if(!usr){
+            throw new Error('user not found');
+        }   
+        
+        usr.favourites.push(bId);
+        return usr.save()
+    })
+    .then(result=>{
+        if(!result){
+            throw new Error('Error adding to the wishlist');
+        }
+        return res.status(200).json({
+            message: 'Successfully added to the wishlist',
+            user: user
+        })
+    })
+    .catch(err=>{
+        res.status(500).json({
+            message: 'Internal error'
+        })
+    })
+}
+
+exports.removeFromFav = (req, res, next) =>{
+    const bId = req.params.id;
+    const user = req.user;
+
+    if(!user){
+        throw new Error('user not logged in');
+    }
+    Users.findById({_id: user._id})
+    .then(usr=>{
+        if(!usr){
+            throw new Error('user not found');
+        }   
+        
+        usr.favourites.pull(bId);
+        return usr.save()
+    })
+    .then(result=>{
+        if(!result){
+            throw new Error('Error removing from the wishlist');
+        }
+        return res.status(200).json({
+            message: 'Successfully removed from the wishlist',
+            user: user
+        })
+    })
+    .catch(err=>{
+        res.status(500).json({
+            message: 'Internal error'
+        })
+    })
 }
