@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 // imported files
 const bookRoutes = require('./routes/book')
+const userRoutes = require('./routes/user')
 const errorRoutes = require('./routes/error')
 
 const app = express();
@@ -15,10 +16,10 @@ const MONGODB_URI =
 
 
 app.use('/book', bookRoutes);
-// app.use(userRoutes);
-// app.use(errorRoutes);
+app.use('/user', userRoutes);
+app.use(errorRoutes);
 
-
+// Database connection
 mongoose
     .connect(MONGODB_URI,
         { useNewUrlParser: true, useUnifiedTopology: true })
