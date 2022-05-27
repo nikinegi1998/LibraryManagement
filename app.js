@@ -12,6 +12,7 @@ const mongoDbStore = require('connect-mongodb-session')(session);
 // imported files
 const bookRoutes = require('./routes/book')
 const userRoutes = require('./routes/user')
+const adminRoutes = require('./routes/admin')
 const errorRoutes = require('./routes/error')
 
 // models imports
@@ -47,6 +48,7 @@ app.use((req, res, next) => {
         })
 })
 
+app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
 app.use('/books', bookRoutes);
 app.use(errorRoutes);
