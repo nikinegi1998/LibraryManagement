@@ -2,6 +2,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const session = require('express-session');
+const mongoDbStore = require('connect-mongodb-session')(session);
 
 // imported files
 const bookRoutes = require('./routes/book')
@@ -11,25 +13,41 @@ const errorRoutes = require('./routes/error')
 // models imports
 const Users = require('./models/user')
 
-const app = express();
-app.use(bodyParser.urlencoded({extended: false}))
-app.use(bodyParser.json())
-const MONGODB_URI = 
-'mongodb+srv://nikki:z719yEvUAZwuyxXM@cluster0.130pt.mongodb.net/library?retryWrites=true&w=majority'
+const MONGODB_URI =
+    'mongodb+srv://nikki:z719yEvUAZwuyxXM@cluster0.130pt.mongodb.net/library?retryWrites=true&w=majority'
 
-app.use((req, res, next)=>{
-    Users.findById('628f1762096fd4ff464c72e9')
-    .then(user =>{
-        req.user = user
-        next();
-    })
-    .catch(err=>{
-        console.log(err.message);
-    })
+const app = express();
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
+const store = new mongoDbStore({
+    uri: MONGODB_URI,
+    collection: 'sessions'
+})
+
+app.use(session({
+    secret: 'dbsecret',
+    resave: false,
+    saveUninitialized: false,
+    store: store
+}))
+
+app.use((req, res, next) => {
+    if (!req.session.user) {
+        return next();
+    }
+    Users.findById(req.session.user._id)
+        .then(user => {
+            req.user = user;
+            next();
+        })
+        .catch(err => {
+            console.log(err.message);
+        })
 })
 
 app.use('/user', userRoutes);
-app.use('/book', bookRoutes);
+app.use('/books', bookRoutes);
 app.use(errorRoutes);
 
 // Database connection

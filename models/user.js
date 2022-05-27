@@ -6,6 +6,8 @@ const Book = require('./book')
 
 const Schema = mongoose.Schema;
 
+const rolesArray = ['SUPERADMIN','ADMIN', 'USER']
+
 const userSchema = new Schema({
     name: {
         type: String,

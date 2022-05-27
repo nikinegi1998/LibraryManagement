@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', booksController.getBooks)
 
-router.get('/details/:id', booksController.getBook)
+router.get('/:id', booksController.getBook)
 
 router.post('/add-book', booksController.postAddBook)
 
