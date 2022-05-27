@@ -2,6 +2,8 @@
 const mongoose  = require('mongoose');
 
 // files imported
+const Book = require('./user')
+
 const Schema = mongoose.Schema;
 
 const booksSchema = new Schema({
@@ -27,6 +29,11 @@ const booksSchema = new Schema({
     },
     publisher: {
         type: String,
+        required: true
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     }
 })

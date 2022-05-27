@@ -1,5 +1,6 @@
 const Users = require('../models/user');
-const bcrypt = require('bcryptjs')
+const Books = require('../models/book');
+const bcrypt = require('bcryptjs');
 
 exports.getUsers = (req, res, next) => {
     Users.find()
@@ -180,9 +181,72 @@ exports.getAllFavList = (req, res, next) => {
 }
 
 exports.grantAdminPermission = (req, res, next) => {
-    
+    const id = req.params.id;
+
+    Users.findById({_id : id})
+    .then(user=>{
+        if(!user){
+            res.status(404).json({
+                message: 'User not found'
+            })
+        }
+        
+        user.role = 'ADMIN';       
+        return user.save()
+    })
+    .then(success=>{
+        if(!success){
+            res.status(404).json({
+                message: 'Error occurred in saving'
+            })
+        }
+        res.status(200).json({
+            message: 'Updated admin permission'
+        })
+    })
+    .catch(err=>{
+        res.status(500).json({
+            message: 'Internal error'
+        })
+    })
 }
 
 exports.revokeAdminPermission = (req, res, next) => {
+    const id = req.params.id;
 
+    Users.findById({_id : id})
+    .then(user=>{
+        if(!user){
+            res.status(404).json({
+                message: 'User not found'
+            })
+        }
+
+        user.role = 'USER';        
+        return user.save()
+    })
+    .then(userdoc=>{
+        if(!userdoc){
+            res.status(404).json({
+                message: 'Error occurred in saving'
+            })
+        }
+        const uid = userdoc._id;
+        return Books.deleteMany({userId: uid})
+    })
+    .then((success)=>{
+        if(!success){
+            res.status(404).json({
+                message: 'Error deleting books'
+            })
+        }
+        res.status(200).json({
+            message: 'Updated admin permission'
+        })
+    })
+    .catch(err=>{
+        res.status(500).json({
+            message: 'Internal error'
+        })
+    })
 }

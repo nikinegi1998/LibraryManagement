@@ -1,3 +1,7 @@
+if(process.env.NOD_ENV !== 'production'){
+    require('dotenv').config();
+}
+
 // installed packages
 const express = require('express');
 const mongoose = require('mongoose');
@@ -13,15 +17,12 @@ const errorRoutes = require('./routes/error')
 // models imports
 const Users = require('./models/user')
 
-const MONGODB_URI =
-    'mongodb+srv://nikki:z719yEvUAZwuyxXM@cluster0.130pt.mongodb.net/library?retryWrites=true&w=majority'
-
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 const store = new mongoDbStore({
-    uri: MONGODB_URI,
+    uri: process.env.MONGODB_URI,
     collection: 'sessions'
 })
 
@@ -52,7 +53,7 @@ app.use(errorRoutes);
 
 // Database connection
 mongoose
-    .connect(MONGODB_URI,
+    .connect(process.env.MONGODB_URI,
         { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
         app.listen(3000, () => {

@@ -39,6 +39,7 @@ exports.postAddBook =(req, res, next)=>{
     const genre = req.body.genre;
     const yop = req.body.yop;
     const publisher = req.body.publisher;
+    const user = req.session.user
 
     const book = new Books({
         title : title,
@@ -46,7 +47,8 @@ exports.postAddBook =(req, res, next)=>{
         author : author,
         genre : genre,
         yop : yop,
-        publisher : publisher
+        publisher : publisher,
+        userId : user._id
     })
 
     book.save()
@@ -70,11 +72,16 @@ exports.postUpdateBook = (req, res, next)=>{
     const genre = req.body.genre;
     const yop = req.body.yop;
     const publisher = req.body.publisher;
+    const user = req.session.user;
 
     Books.findById(bId)
     .then(book=>{
         if(!book){
             throw new Error({message: 'Book doesn\'t exist.', status: 404});
+        }
+
+        if(user._id !== book.userId){
+            throw new Error({message: 'User not authorized to update', status: 404});
         }
         book.title = title;
         book.isbn = isbn;
@@ -82,6 +89,7 @@ exports.postUpdateBook = (req, res, next)=>{
         book.genre = genre;
         book.yop = yop;
         book.publisher = publisher;
+        book.userId = user._id;
         return book.save()
     })
     .then(success=>{

@@ -3,6 +3,7 @@ const express = require('express');
 const userController = require('../controllers/user');
 const isAuth = require('../middleware/is-auth');
 const isAdmin = require('../middleware/is-admin');
+const isSuper = require('../middleware/is-superadmin');
 
 const router = express.Router();
 
@@ -20,8 +21,8 @@ router.delete('/delete-user/:id', isAuth, isAdmin, userController.removeUser)
 
 router.get('/wishlist/books', isAuth, userController.getAllFavList)
 
-router.patch('/grantAdmin/:id', isAuth, isAdmin, userController.grantAdminPermission)
+router.patch('/grantAdmin/:id', isAuth, isSuper, userController.grantAdminPermission)
 
-router.patch('/revokeAdmin/:id', isAuth, isAdmin, userController.revokeAdminPermission)
+router.patch('/revokeAdmin/:id', isAuth, isSuper, userController.revokeAdminPermission)
 
 module.exports = router;
