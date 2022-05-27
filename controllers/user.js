@@ -1,7 +1,15 @@
+const { validationResult } = require('express-validator');
+
 const Users = require('../models/user');
 const bcrypt = require('bcryptjs');
 
 exports.postAddUser = (req, res, next) => {
+
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        res.status(422).json({message: 'Validation error'})
+    }
+
     const name = req.body.name;
     const email = req.body.email;
     const password = req.body.password;
@@ -36,6 +44,10 @@ exports.postAddUser = (req, res, next) => {
 }
 
 exports.loginUser = (req, res, next) => {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        res.status(422).json({message: 'Validation error'})
+    }
     const email = req.body.email;
     const password = req.body.password;
 

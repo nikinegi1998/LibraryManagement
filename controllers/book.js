@@ -1,3 +1,5 @@
+const { validationResult } = require('express-validator');
+
 const Books = require('../models/book');
 const Users = require('../models/user')
 
@@ -33,6 +35,11 @@ exports.getBook = (req, res, next)=>{
 }
 
 exports.postAddBook =(req, res, next)=>{
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        res.status(422).json({message: 'Validation error'})
+    }
+
     const title = req.body.title;
     const isbn = req.body.isbn;
     const author = req.body.author;
@@ -41,17 +48,23 @@ exports.postAddBook =(req, res, next)=>{
     const publisher = req.body.publisher;
     const user = req.session.user
 
-    const book = new Books({
-        title : title,
-        isbn : isbn,
-        author : author,
-        genre : genre,
-        yop : yop,
-        publisher : publisher,
-        userId : user._id
-    })
+    Books.findOne({isbn: isbn})
+    .then(existingBook=>{
+        if(existingBook){
+            res.status(409).json({message: 'Book with this isbn already exist'})
+        }
+        const book = new Books({
+            title : title,
+            isbn : isbn,
+            author : author,
+            genre : genre,
+            yop : yop,
+            publisher : publisher,
+            userId : user._id
+        })
 
-    book.save()
+        return book.save()
+    })    
     .then(success=>{
         res.status(200).json({
             message: 'Book created',
