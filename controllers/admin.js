@@ -2,16 +2,24 @@ const Users = require('../models/user');
 const Books = require('../models/book');
 
 exports.getUsers = (req, res, next) => {
-    
+
     Users.find()
         .then(usersList => {
+            if (!usersList) {
+                const error = new Error('Failed to get all the users');
+                error.statusCode = 404;
+                throw error;
+            }
             res.status(200).json({
                 message: 'Users List',
                 books: usersList
             })
         })
         .catch(err => {
-            res.status(500).json({ message: 'Fetching users failed' });
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         })
 }
 
@@ -21,7 +29,9 @@ exports.getUser = (req, res, next) => {
     Users.findById(uId)
         .then(user => {
             if (!user) {
-                throw new Error({ message: 'User not found.', status: 404 });
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
             }
             res.status(200).json({
                 message: 'User Found',
@@ -29,7 +39,10 @@ exports.getUser = (req, res, next) => {
             })
         })
         .catch(err => {
-            res.status(500).json({ message: 'Book id not found' });
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         })
 }
 
@@ -40,7 +53,9 @@ exports.removeUser = (req, res, next) => {
         .then(user => {
             console.log(user);
             if (!user) {
-                throw new Error({ message: 'User doesn\'t exist.', status: 404 });
+                const error = new Error('User does not exist');
+                error.statusCode = 404;
+                throw error;
             }
             return user.deleteOne({ _id: uId })
         })
@@ -51,77 +66,77 @@ exports.removeUser = (req, res, next) => {
             })
         })
         .catch(err => {
-            res.status(500).json({ message: 'Deleting users failed' });
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         })
 }
 
 exports.grantAdminPermission = (req, res, next) => {
     const id = req.params.id;
 
-    Users.findById({_id : id})
-    .then(user=>{
-        if(!user){
-            res.status(404).json({
-                message: 'User not found'
-            })
-        }
-        
-        user.role = 'ADMIN';       
-        return user.save()
-    })
-    .then(success=>{
-        if(!success){
-            res.status(404).json({
-                message: 'Error occurred in saving'
-            })
-        }
-        res.status(200).json({
-            message: 'Updated admin permission'
+    Users.findById({ _id: id })
+        .then(user => {
+            if (!user) {
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
+            }
+
+            user.role = 'ADMIN';
+            return user.save()
         })
-    })
-    .catch(err=>{
-        res.status(500).json({
-            message: 'Internal error'
+        .then(success => {
+            res.status(200).json({
+                message: 'Updated admin permission'
+            })
         })
-    })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
 }
 
 exports.revokeAdminPermission = (req, res, next) => {
     const id = req.params.id;
 
-    Users.findById({_id : id})
-    .then(user=>{
-        if(!user){
-            res.status(404).json({
-                message: 'User not found'
-            })
-        }
+    Users.findById({ _id: id })
+        .then(user => {
+            if (!user) {
+                const error = new Error('User not found');
+                error.statusCode = 404;
+                throw error;
+            }
 
-        user.role = 'USER';        
-        return user.save()
-    })
-    .then(userdoc=>{
-        if(!userdoc){
-            res.status(404).json({
-                message: 'Error occurred in saving'
-            })
-        }
-        const uid = userdoc._id;
-        return Books.deleteMany({userId: uid})
-    })
-    .then((success)=>{
-        if(!success){
-            res.status(404).json({
-                message: 'Error deleting books'
-            })
-        }
-        res.status(200).json({
-            message: 'Updated admin permission'
+            user.role = 'USER';
+            return user.save()
         })
-    })
-    .catch(err=>{
-        res.status(500).json({
-            message: 'Internal error'
+        .then(userdoc => {
+            if (!userdoc) {
+                const error = new Error('Failed to update the role');
+                error.statusCode = 422;
+                throw error;
+            }
+            const uid = userdoc._id;
+            return Books.deleteMany({ userId: uid })
         })
-    })
+        .then((success) => {
+            if (!success) {
+                const error = new Error('Error deleting books');
+                error.statusCode = 500;
+                throw error;
+            }
+            res.status(200).json({
+                message: 'Updated admin permission'
+            })
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
 }
