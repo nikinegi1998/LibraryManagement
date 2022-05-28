@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
 
 const Users = require('../models/user');
 const bcrypt = require('bcryptjs');
@@ -79,14 +80,20 @@ exports.loginUser = (req, res, next) => {
                         const error = new Error('Password incorrect');
                         error.statusCode = 422;
                         throw error;
-
                     }
-                    req.session.user = user
-                    req.session.isLoggedIn = true
-                    return req.session.save()
-                })
-                .then(success => {
-                    res.status(200).json({ message: 'Logged in successfully.' })
+                    console.log(user);
+                    const token = jwt.sign({
+                        email: user.email,
+                        userId: user._id.toString(),
+                        role: user.role
+                    }, 'somesupersecretsecret', { expiresIn: '1h' })
+
+                    res.status(200).json({
+                        message: 'Logged in successfully.',
+                        token: token,
+                        userId: user._id.toString(),
+                        role: user.role
+                    })
                 })
         })
         .catch(err => {
@@ -125,7 +132,7 @@ exports.loginUser = (req, res, next) => {
 
 exports.getAllFavList = (req, res, next) => {
     const user = req.user;
-    
+
     Users.findById({ _id: user._id })
         .then(usr => {
             console.log(usr);

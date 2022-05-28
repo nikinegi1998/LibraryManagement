@@ -7,7 +7,7 @@ const isAdmin = require('../middleware/is-admin');
 
 const router = express.Router();
 
-router.get('/', booksController.getBooks)
+router.get('/', isAuth, booksController.getBooks)
 
 router.get('/:id', booksController.getBook)
 

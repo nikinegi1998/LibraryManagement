@@ -42,7 +42,7 @@ router.post('/login', [
         .isLength({ min: 5 })
         .isAlphanumeric()
         .trim()
-], isAuth, userController.loginUser)
+], userController.loginUser)
 
 // router.put('/edit-user/:id', isAuth, userController.postUpdateUser)
 

@@ -1,7 +1,34 @@
-module.exports = (req, res, next)=>{
-    const user = req.session.user
-    if(user.role !== 'SUPER ADMIN'){
-        return res.status(403).json({message: 'Not authorized super admin'})
-    }
-    next();
-}
+const jwt = require('jsonwebtoken');
+
+module.exports = (req, res, next) => {
+  const authHeader = req.get('Authorization');
+  if (!authHeader) {
+    const error = new Error('Not authenticated.');
+    error.statusCode = 401;
+    throw error;
+  }
+  const token = authHeader.split(' ')[1];
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(token, 'somesupersecretsecret');
+  } catch (err) {
+    err.statusCode = 500;
+    throw err;
+  }
+  if (!decodedToken) {
+    const error = new Error('Not authenticated.');
+    error.statusCode = 401;
+    throw error;
+  }
+  
+  if(decodedToken.role !== 'SUPER ADMIN'){
+    const error = new Error('Not authenticated.');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  req.userId = decodedToken.userId;
+  req.role = decodedToken.role;
+
+  next();
+};

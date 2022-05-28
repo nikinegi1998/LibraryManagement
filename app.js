@@ -7,7 +7,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const mongoDbStore = require('connect-mongodb-session')(session);
+// const mongoDbStore = require('connect-mongodb-session')(session);
 
 // imported files
 const bookRoutes = require('./routes/book')
@@ -19,34 +19,8 @@ const errorRoutes = require('./routes/error')
 const Users = require('./models/user')
 
 const app = express();
-app.use(bodyParser.urlencoded({ extended: false }))
+// app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-
-const store = new mongoDbStore({
-    uri: process.env.MONGODB_URI,
-    collection: 'sessions'
-})
-
-app.use(session({
-    secret: 'dbsecret',
-    resave: false,
-    saveUninitialized: false,
-    store: store
-}))
-
-app.use((req, res, next) => {
-    if (!req.session.user) {
-        return next();
-    }
-    Users.findById(req.session.user._id)
-        .then(user => {
-            req.user = user;
-            next();
-        })
-        .catch(err => {
-            console.log(err.message);
-        })
-})
 
 // error handling middleware
 app.use((error, req, res, next) => {
