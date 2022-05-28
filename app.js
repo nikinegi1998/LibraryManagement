@@ -1,4 +1,4 @@
-if(process.env.NOD_ENV !== 'production'){
+if (process.env.NOD_ENV !== 'production') {
     require('dotenv').config();
 }
 
@@ -52,6 +52,13 @@ app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
 app.use('/books', bookRoutes);
 app.use(errorRoutes);
+
+// cors error fixing
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Auhtorization');
+})
 
 // Database connection
 mongoose
