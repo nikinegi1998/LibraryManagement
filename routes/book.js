@@ -37,4 +37,6 @@ router.put('/favorite/:id', isAuth, booksController.addToFav)
 
 router.delete('/favorite/:id', isAuth, booksController.removeFromFav)
 
+router.post('/search', booksController.searchWithKeyword)
+
 module.exports = router;

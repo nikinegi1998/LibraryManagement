@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 
 const Users = require('../models/user');
+const Books = require('../models/book');
 const bcrypt = require('bcryptjs');
 
 exports.postAddUser = (req, res, next) => {
@@ -164,4 +165,3 @@ exports.getAllFavList = (req, res, next) => {
             next(err);
         })
 }
-
