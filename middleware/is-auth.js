@@ -22,6 +22,6 @@ module.exports = (req, res, next) => {
   }
   req.user = decodedToken;
   req.role = decodedToken.role;
-  console.log(req.user)
+  // console.log(req.user)
   next();
 };

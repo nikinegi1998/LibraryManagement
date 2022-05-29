@@ -3,51 +3,56 @@ const { validationResult } = require('express-validator');
 const Books = require('../models/book');
 const Users = require('../models/user')
 
-exports.getBooks = (req, res, next) => {
-    Books.find()
-        .then(booksList => {
-            if (!booksList) {
-                const error = new Error('Books not found');
-                error.statusCode = 404;
-                throw error;
-            }
-            res.status(200).json({
-                message: 'Books List',
-                books: booksList
-            })
+exports.getBooks = async (req, res, next) => {
+
+    try {
+        const booksList = await Books.find()
+
+        if (!booksList) {
+            const error = new Error('Books not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        res.status(200).json({
+            message: 'Books List',
+            books: booksList
         })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
+    }
+
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 }
 
-exports.getBook = (req, res, next) => {
+exports.getBook = async (req, res, next) => {
     const bId = req.params.id;
 
-    Books.findById(bId)
-        .then(book => {
-            if (!book) {
-                const error = new Error('Book not found');
-                error.statusCode = 404;
-                throw error;
-            }
-            res.status(200).json({
-                message: 'Book Found',
-                books: book
-            })
+    try {
+        const book = await Books.findById(bId)
+
+        if (!book) {
+            const error = new Error('Book not found');
+            error.statusCode = 404;
+            throw error;
+        }
+        res.status(200).json({
+            message: 'Book Found',
+            books: book
         })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 }
 
-exports.postAddBook = (req, res, next) => {
+exports.postAddBook = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         const error = new Error('Validation error');
@@ -63,46 +68,39 @@ exports.postAddBook = (req, res, next) => {
     const publisher = req.body.publisher;
     const user = req.user;
 
-    Books.findOne({ isbn: isbn })
-        .then(existingBook => {
-            if (existingBook) {
-                const error = new Error('Book with this isbn already exist');
-                error.statusCode = 409;
-                throw error;
-            }
-            const book = new Books({
-                title: title,
-                isbn: isbn,
-                author: author,
-                genre: genre,
-                yop: yop,
-                publisher: publisher,
-                userId: user.userId
-            })
+    try {
+        const existingBook = await Books.findOne({ isbn: isbn })
 
-            return book.save()
+        if (existingBook) {
+            const error = new Error('Book with this isbn already exist');
+            error.statusCode = 409;
+            throw error;
+        }
+        const book = new Books({
+            title: title,
+            isbn: isbn,
+            author: author,
+            genre: genre,
+            yop: yop,
+            publisher: publisher,
+            userId: user.userId
         })
-        .then(bookData => {
 
-            if (!bookData) {
-                const error = new Error('Failed to save the book data');
-                error.statusCode = 500;
-                throw error;
-            }
-            res.status(200).json({
-                message: 'Book created',
-                books: bookData
-            })
+        await book.save()
+        res.status(200).json({
+            message: 'Book created',
+            books: book
         })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 }
 
-exports.postUpdateBook = (req, res, next) => {
+exports.postUpdateBook = async (req, res, next) => {
     const bId = req.params.id;
     const title = req.body.title;
     const isbn = req.body.isbn;
@@ -112,139 +110,134 @@ exports.postUpdateBook = (req, res, next) => {
     const publisher = req.body.publisher;
     const user = req.user;
 
-    Books.findById(bId)
-        .then(book => {
-            if (!book) {
-                const error = new Error('Book doesn\'t exist');
-                error.statusCode = 404;
-                throw error;
-            }
+    try {
+        const book = await Books.findById(bId)
 
-            if (user._id !== book.userId) {
-                const error = new Error('User not authorized to update');
-                error.statusCode = 401;
-                throw error;
-            }
-            book.title = title;
-            book.isbn = isbn;
-            book.author = author;
-            book.genre = genre;
-            book.yop = yop;
-            book.publisher = publisher;
-            book.userId = user._id;
-            return book.save()
+        if (!book) {
+            const error = new Error('Book doesn\'t exist');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        if (user._id !== book.userId) {
+            const error = new Error('User not authorized to update');
+            error.statusCode = 401;
+            throw error;
+        }
+
+        book.title = title;
+        book.isbn = isbn;
+        book.author = author;
+        book.genre = genre;
+        book.yop = yop;
+        book.publisher = publisher;
+        book.userId = book.userId;
+
+        await book.save();
+
+        console.log('Book Updated');
+        return res.status(200).json({
+            message: 'Book details Updated',
+            book: book
         })
-        .then(success => {
-            if (!success) {
-                const error = new Error('Failed to save the updates');
-                error.statusCode = 500;
-                throw error;
-            }
-            console.log('Book Updated');
-            return res.status(200).json({
-                message: 'Book details Updated'
-            })
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
+    }
+
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 }
 
-exports.removeBook = (req, res, next) => {
+exports.removeBook = async (req, res, next) => {
     const bId = req.params.id;
 
-    Books.findById(bId)
-        .then(book => {
-            if (!book) {
-                const error = new Error('Book doesn\'t exist.');
-                error.statusCode = 404;
-                throw error;
-            }
-            return Books.deleteOne({ _id: bId })
+    const book = await Books.findById(bId)
+    try {
+
+        if (!book) {
+            const error = new Error('Book doesn\'t exist.');
+            error.statusCode = 404;
+            throw error;
+        }
+        if (book.userId !== req.user._id) {
+            const error = new Error('User not authorized to update');
+            error.statusCode = 401;
+            throw error;
+        }
+
+        await Books.deleteOne({ _id: bId })
+
+        return res.status(200).json({
+            message: 'Book Deleted'
         })
-        .then(success => {
-            console.log('Book destroyed');
-            return res.status(200).json({
-                message: 'Book Deleted'
-            })
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 }
 
-exports.addToFav = (req, res, next) => {
+exports.addToFav = async (req, res, next) => {
+    const bId = req.params.id;
+    console.log(req.user);
+
+    try {
+        const user = await Users.findById({ _id: req.user.userId })
+
+        if (!user) {
+            const error = new Error('User not found.');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        user.favourites.push(bId);
+        await user.save()
+
+        return res.status(200).json({
+            message: 'Successfully added to the wishlist',
+            user: user
+        })
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+}
+
+exports.removeFromFav = async (req, res, next) => {
     const bId = req.params.id;
     const user = req.user;
 
-    Users.findById({ _id: user._id })
-        .then(usr => {
-            if (!usr) {
-                const error = new Error('User not found.');
-                error.statusCode = 404;
-                throw error;
-            }
+    try {
+        const usr = await Users.findById({ _id: user.userId })
 
-            usr.favourites.push(bId);
-            return usr.save()
-        })
-        .then(result => {
-            if (!result) {
-                const error = new Error('Failed to add book to the wishlist');
-                error.statusCode = 500;
-                throw error;
-            }
-            return res.status(200).json({
-                message: 'Successfully added to the wishlist',
-                user: user
-            })
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
-}
+        if (!usr) {
+            const error = new Error('User not found');
+            error.statusCode = 404;
+            throw error;
+        }
 
-exports.removeFromFav = (req, res, next) => {
-    const bId = req.params.id;
-    const user = req.user;
+        usr.favourites.pull(bId);
+        await usr.save()
 
-    Users.findById({ _id: user._id })
-        .then(usr => {
-            if (!usr) {
-                const error = new Error('User not found');
-                error.statusCode = 404;
-                throw error;
-            }
 
-            usr.favourites.pull(bId);
-            return usr.save()
+        return res.status(200).json({
+            message: 'Successfully removed from the wishlist',
+            user: usr
         })
-        .then(result => {
-            if (!result) {
-                const error = new Error('Failed to remove book from wishlist');
-                error.statusCode = 500;
-                throw error;
-            }
-            return res.status(200).json({
-                message: 'Successfully removed from the wishlist',
-                user: user
-            })
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err);
-        })
+
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 }
 
 exports.searchWithKeyword = async (req, res, next) => {
@@ -261,7 +254,7 @@ exports.searchWithKeyword = async (req, res, next) => {
                         duplicates.push(element)
                         console.log(element)
                     });
-                    
+
                 }
             });
 
@@ -272,7 +265,7 @@ exports.searchWithKeyword = async (req, res, next) => {
                         duplicates.push(element)
                         console.log(element)
                     });
-                    
+
                 }
             });
 
@@ -283,7 +276,7 @@ exports.searchWithKeyword = async (req, res, next) => {
                         duplicates.push(element)
                         console.log(element)
                     });
-                    
+
                 }
             });
 
@@ -294,7 +287,7 @@ exports.searchWithKeyword = async (req, res, next) => {
                         duplicates.push(element)
                         console.log(element)
                     });
-                    
+
                 }
             });
 
