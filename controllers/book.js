@@ -241,68 +241,87 @@ exports.removeFromFav = async (req, res, next) => {
 }
 
 exports.searchWithKeyword = async (req, res, next) => {
-    const keyword = req.body.keyword;
+    const keyword = req.params.keyword;
 
     const bookList = [];
-    const duplicates = [];
-
     try {
-        const titleSearch = await Books.find({ "title": { "$regex": keyword } },
-            (err, docs) => {
-                if (!err) {
-                    docs.forEach(element => {
-                        duplicates.push(element)
-                        console.log(element)
-                    });
-
-                }
-            });
-
-        const authorSearch = await Books.find({ "author": { "$regex": keyword } },
-            (err, docs) => {
-                if (!err) {
-                    docs.forEach(element => {
-                        duplicates.push(element)
-                        console.log(element)
-                    });
-
-                }
-            });
-
-        const genreSearch = await Books.find({ "genre": { "$regex": keyword } },
-            (err, docs) => {
-                if (!err) {
-                    docs.forEach(element => {
-                        duplicates.push(element)
-                        console.log(element)
-                    });
-
-                }
-            });
-
-        const publisherSearch = await Books.find({ "publisher": { "$regex": keyword } },
-            (err, docs) => {
-                if (!err) {
-                    docs.forEach(element => {
-                        duplicates.push(element)
-                        console.log(element)
-                    });
-
-                }
-            });
-
-        duplicates.forEach((c) => {
-            if (!bookList.includes(c)) {
-                bookList.push(c);
-                console.log(c)
-            }
-        });
+        const book = await Books.find({
+            $or: [
+                { title: { '$regex': keyword, $options: 'i' } },
+                { author: { '$regex': keyword, $options: 'i' } },
+                { genre: { '$regex': keyword, $options: 'i' } },
+                { publisher: { '$regex': keyword, $options: 'i' } }
+            ]
+        })
+        console.log(book);
+        bookList.push(book)
 
         console.log(bookList);
         res.status(200).json({
             message: 'Fetched books from the keywords',
             books: bookList
         })
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+
+}
+
+// try {
+    //     const titleSearch = await Books.find({ "title": { "$regex": keyword } },
+    //         (err, docs) => {
+    //             if (!err) {
+    //                 docs.forEach(element => {
+    //                     duplicates.push(element)
+    //                     console.log(element)
+    //                 });
+
+    //             }
+    //         });
+
+    //     const authorSearch = await Books.find({ "author": { "$regex": keyword } },
+    //         (err, docs) => {
+    //             if (!err) {
+    //                 docs.forEach(element => {
+    //                     duplicates.push(element)
+    //                     console.log(element)
+    //                 });
+
+    //             }
+    //         });
+
+    //     const genreSearch = await Books.find({ "genre": { "$regex": keyword } },
+    //         (err, docs) => {
+    //             if (!err) {
+    //                 docs.forEach(element => {
+    //                     duplicates.push(element)
+    //                     console.log(element)
+    //                 });
+
+    //             }
+    //         });
+
+    //     const publisherSearch = await Books.find({ "publisher": { "$regex": keyword } },
+    //         (err, docs) => {
+    //             if (!err) {
+    //                 docs.forEach(element => {
+    //                     duplicates.push(element)
+    //                     console.log(element)
+    //                 });
+
+    //             }
+    //         });
+
+    //     duplicates.forEach((c) => {
+    //         if (!bookList.includes(c)) {
+    //             bookList.push(c);
+    //             console.log(c)
+    //         }
+    //     });
 
         // Books.find({"author": { "$regex": keyword }},
         // (err, docs)=>{
@@ -353,12 +372,3 @@ exports.searchWithKeyword = async (req, res, next) => {
         //     message: 'Fetched books from the keywords',
         //     books: duplicates
         // })
-    }
-    catch (err) {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    }
-
-}

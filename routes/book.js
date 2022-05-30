@@ -53,6 +53,6 @@ router.patch('/add-favorite/:id', isAuth, booksController.addToFav)
 
 router.patch('/remove-favorite/:id', isAuth, booksController.removeFromFav)
 
-router.post('/search', booksController.searchWithKeyword)
+router.get('/search/:keyword', booksController.searchWithKeyword)
 
 module.exports = router;

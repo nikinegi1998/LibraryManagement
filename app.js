@@ -23,10 +23,13 @@ app.use(bodyParser.json())
 
 // error handling middleware
 app.use((error, req, res, next) => {
+    if (error.message === "Bad request") {
+        res.status(400).json({error: {msg: error.message, stack: error.stack}});
+    }
     console.log(error);
     const status = error.statusCode || 500;
     const message = error.message;
-    return res.status(status).json({ message: message });
+    res.status(status).json({ message: message });
 });
 
 app.use('/admin', adminRoutes);
