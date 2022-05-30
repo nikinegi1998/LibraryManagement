@@ -119,11 +119,11 @@ exports.postUpdateBook = async (req, res, next) => {
             throw error;
         }
 
-        if (user._id !== book.userId) {
-            const error = new Error('User not authorized to update');
-            error.statusCode = 401;
-            throw error;
-        }
+        // if (user._id !== book.userId) {
+        //     const error = new Error('User not authorized to update');
+        //     error.statusCode = 401;
+        //     throw error;
+        // }
 
         book.title = title;
         book.isbn = isbn;
@@ -161,11 +161,11 @@ exports.removeBook = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        if (book.userId !== req.user._id) {
-            const error = new Error('User not authorized to update');
-            error.statusCode = 401;
-            throw error;
-        }
+        // if (book.userId !== req.user._id) {
+        //     const error = new Error('User not authorized to update');
+        //     error.statusCode = 401;
+        //     throw error;
+        // }
 
         await Books.deleteOne({ _id: bId })
 
@@ -174,65 +174,6 @@ exports.removeBook = async (req, res, next) => {
         })
     }
     catch (err) {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    }
-}
-
-exports.addToFav = async (req, res, next) => {
-    const bId = req.params.id;
-    console.log(req.user);
-
-    try {
-        const user = await Users.findById({ _id: req.user.userId })
-
-        if (!user) {
-            const error = new Error('User not found.');
-            error.statusCode = 404;
-            throw error;
-        }
-
-        user.favourites.push(bId);
-        await user.save()
-
-        return res.status(200).json({
-            message: 'Successfully added to the wishlist',
-            user: user
-        })
-    }
-    catch (err) {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    }
-}
-
-exports.removeFromFav = async (req, res, next) => {
-    const bId = req.params.id;
-    const user = req.user;
-
-    try {
-        const usr = await Users.findById({ _id: user.userId })
-
-        if (!usr) {
-            const error = new Error('User not found');
-            error.statusCode = 404;
-            throw error;
-        }
-
-        usr.favourites.pull(bId);
-        await usr.save()
-
-
-        return res.status(200).json({
-            message: 'Successfully removed from the wishlist',
-            user: usr
-        })
-
-    } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
         }

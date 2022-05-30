@@ -18,9 +18,9 @@ exports.postAddUser = async (req, res, next) => {
     const password = req.body.password;
     const role = req.body.role;
 
-    if ((role.toUpperCase() != 'ADMIN') ||
-        (role.toUpperCase() != 'SUPER ADMIN') ||
-        (role.toUpperCase() != 'USER')) {
+    if ((role.toUpperCase() !== 'ADMIN') &&
+        (role.toUpperCase() !== 'SUPER ADMIN') &&
+        (role.toUpperCase() !== 'USER')) {
         const error = new Error('Role can\'t be identified');
         error.statusCode = 422;
         throw error;
@@ -44,7 +44,7 @@ exports.postAddUser = async (req, res, next) => {
 
         res.status(200).json({
             message: 'User created',
-            users: userDoc
+            users: user
         })
     }
     catch (err) {
@@ -160,6 +160,66 @@ exports.getAllFavList = async (req, res, next) => {
         })
     }
     catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+}
+
+
+exports.addToFav = async (req, res, next) => {
+    const bId = req.params.id;
+    console.log(req.user);
+
+    try {
+        const user = await Users.findById({ _id: req.user.userId })
+
+        if (!user) {
+            const error = new Error('User not found.');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        user.favourites.push(bId);
+        await user.save()
+
+        return res.status(200).json({
+            message: 'Successfully added to the wishlist',
+            user: user
+        })
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+}
+
+exports.removeFromFav = async (req, res, next) => {
+    const bId = req.params.id;
+    const user = req.user;
+
+    try {
+        const usr = await Users.findById({ _id: user.userId })
+
+        if (!usr) {
+            const error = new Error('User not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        usr.favourites.pull(bId);
+        await usr.save()
+
+
+        return res.status(200).json({
+            message: 'Successfully removed from the wishlist',
+            user: usr
+        })
+
+    } catch (err) {
         if (!err.statusCode) {
             err.statusCode = 500;
         }

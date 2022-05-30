@@ -46,6 +46,10 @@ router.post('/login', [
 
 // router.put('/edit-user/:id', isAuth, userController.postUpdateUser)
 
+router.patch('/add-favorite/:id', isAuth, userController.addToFav)
+
+router.patch('/remove-favorite/:id', isAuth, userController.removeFromFav)
+
 router.get('/wishlist/books', isAuth, userController.getAllFavList)
 
 module.exports = router;

@@ -49,10 +49,6 @@ router.put('/edit-book/:id', [
 
 router.delete('/delete-book/:id', isAdmin, booksController.removeBook)
 
-router.patch('/add-favorite/:id', isAuth, booksController.addToFav)
-
-router.patch('/remove-favorite/:id', isAuth, booksController.removeFromFav)
-
 router.get('/search/:keyword', booksController.searchWithKeyword)
 
 module.exports = router;
