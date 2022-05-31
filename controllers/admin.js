@@ -2,9 +2,15 @@ const Users = require('../models/user');
 const Books = require('../models/book');
 
 exports.getUsers = async (req, res, next) => {
+    const currentPage = req.query.page || 1;
+    const itemsPerPage = 3;
 
     try {
+        const totalusers = await Users.find().countDocuments()
+                
         const usersList = await Users.find()
+        .skip((currentPage-1)*itemsPerPage)
+        .limit(itemsPerPage)
 
         if (!usersList) {
             const error = new Error('Failed to get all the users');
@@ -13,7 +19,8 @@ exports.getUsers = async (req, res, next) => {
         }
         res.status(200).json({
             message: 'Users List',
-            books: usersList
+            books: usersList,
+            totalusers: totalusers
         })
     }
     catch (err) {

@@ -23,10 +23,7 @@ app.use(bodyParser.json())
 
 // error handling middleware
 app.use((error, req, res, next) => {
-    if (error.message === "Bad request") {
-        res.status(400).json({error: {msg: error.message, stack: error.stack}});
-    }
-    console.log(error);
+    // console.log(error);
     const status = error.statusCode || 500;
     const message = error.message;
     res.status(status).json({ message: message });

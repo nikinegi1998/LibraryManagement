@@ -4,9 +4,15 @@ const Books = require('../models/book');
 const Users = require('../models/user')
 
 exports.getBooks = async (req, res, next) => {
-
+    const currentPage = req.query.page || 1;
+    const itemsPerPage = 3;
+    
     try {
+        const totalbooks = await Books.find().countDocuments()
+        
         const booksList = await Books.find()
+        .skip((currentPage-1)*itemsPerPage)
+        .limit(itemsPerPage)
 
         if (!booksList) {
             const error = new Error('Books not found');
@@ -16,7 +22,8 @@ exports.getBooks = async (req, res, next) => {
 
         res.status(200).json({
             message: 'Books List',
-            books: booksList
+            books: booksList,
+            totalbooks: totalbooks
         })
     }
 
@@ -194,9 +201,8 @@ exports.searchWithKeyword = async (req, res, next) => {
                 { publisher: { '$regex': keyword, $options: 'i' } }
             ]
         })
-        console.log(book);
+        
         bookList.push(book)
-
         console.log(bookList);
         res.status(200).json({
             message: 'Fetched books from the keywords',

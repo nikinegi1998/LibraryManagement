@@ -11,7 +11,7 @@ router.get('/', booksController.getBooks)
 
 router.get('/:id', booksController.getBook)
 
-router.post('/add-book', isAdmin, [
+router.post('/add-book', isAuth, isAdmin, [
     body('title')
         .isLength({ min: 3 })
         .withMessage('Should be at least 3 characters'),
@@ -47,7 +47,7 @@ router.put('/edit-book/:id', [
         .withMessage('Should be at least 5 characters')
 ], isAdmin, booksController.postUpdateBook)
 
-router.delete('/delete-book/:id', isAdmin, booksController.removeBook)
+router.delete('/delete-book/:id', isAuth, isAdmin, booksController.removeBook)
 
 router.get('/search/:keyword', booksController.searchWithKeyword)
 

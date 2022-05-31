@@ -101,6 +101,7 @@ exports.loginUser = async (req, res, next) => {
             err.statusCode = 500;
         }
         next(err);
+        return err
     }
 }
 
@@ -166,7 +167,6 @@ exports.getAllFavList = async (req, res, next) => {
         next(err);
     }
 }
-
 
 exports.addToFav = async (req, res, next) => {
     const bId = req.params.id;
