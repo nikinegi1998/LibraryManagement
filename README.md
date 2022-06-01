@@ -18,7 +18,7 @@ git clone https://github.com/nikinegi1998/LibraryManagement.git
 
 Install all the dependencies: 
 ```
-npm install (to install all the dependencies)
+npm install 
 ```
 
 ## _Steps to run the server_
