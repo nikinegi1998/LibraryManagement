@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 
 // Importing models 
 const Users = require('../models/user');
+const Book = require('../models/book');
 
 // Registers new user
 exports.postAddUser = async (req, res, next) => {
@@ -75,7 +76,7 @@ exports.loginUser = async (req, res, next) => {
 
         if (!user) {
             const error = new Error('User not found');
-            error.statusCode = 404;
+            error.statusCode = 422;
             throw error;
         }
 
@@ -158,10 +159,16 @@ exports.addToFav = async (req, res, next) => {
 
         if (!user) {
             const error = new Error('User not found.');
-            error.statusCode = 404;
+            error.statusCode = 422;
             throw error;
         }
 
+        const book = await Book.findById({_id: bId})
+        if (!book) {
+            const error = new Error('User not found.');
+            error.statusCode = 422;
+            throw error;
+        }
         user.favourites.push(bId);
         await user.save()
 
@@ -208,3 +215,82 @@ exports.removeFromFav = async (req, res, next) => {
         next(err);
     }
 }
+
+
+// describe('Login Function Testing',
+//         function () {
+//             it('Should throws an error with code 500 if accessing the database fails',
+//                 function (done) {
+//                     sinon.stub(User, 'findOne');
+//                     User.findOne.throws();
+
+//                     const req = {
+//                         body: {
+//                             email: 'user1@mail.com',
+//                             password: '12345'
+//                         }
+//                     };
+//                     UserController.loginUser(req, {}, () => { }).then(result => {
+//                         expect(result).to.be.an('error');
+//                         expect(result).to.have.property('statusCode', 500);
+//                         done();
+//                     });
+//                     User.findOne.restore();
+//                 });
+
+//             it('Should through an error with code 422 if find the value in database fails', function () {
+//                 sinon.stub(User, 'findOne');
+//                 User.findOne.throws();
+//                 const req = {
+//                     body: {
+//                         email: 'user1@mail.com',
+//                         password: '12345',
+//                     }
+//                 };
+//                 UserController.loginUser(req, {}, () => { }).then(result => {
+//                     expect(result).to.be.an('error');
+//                     expect(result).to.have.property('statusCode', 422);
+//                 });
+//                 User.findOne.restore();
+//             })
+//         })
+
+//     describe('Book add to user\'s wishlist',
+//         function () {
+//             it('should throw an error 500 if request failed',
+//                 function () {
+//                     sinon.stub(Book, 'findById');
+//                     Book.findById.throws();
+
+//                     const req = {
+//                         _id: '628e81089e5831e395803e16',
+//                     }
+
+//                     UserController.addToFav(req, {}, () => { })
+//                         .then(result => {
+//                             expect(result).to.be.an('error');
+//                             expect(result).to.have.property('statusCode', 500)
+//                         })
+//                     Book.findById.restore();
+//                 })
+//         })
+
+//     describe('Book remove from user\'s wishlist',
+//         function () {
+//             it('should throw an error 500 if request failed', 
+//             function(){
+//                 sinon.stub(Book,'findById');
+//             Book.findById.throws();
+//             const req={
+//                 body:{
+//                     _id:'abbddbhsdbsf',
+//                     userId:'bhsndwbwnbshwsnf'
+//                 }
+//             };
+//             bookController.unmarkBook(req,{},()=>{}).then(result=>{
+//                 expect(result).to.be.an('error');
+//                 expect(result).to.have.property('statusCode',500);
+//             });
+//             Book.findById.restore();
+//             })
+//         })
