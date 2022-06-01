@@ -1,9 +1,12 @@
+// Importing Installed packages
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
-
-const Users = require('../models/user');
 const bcrypt = require('bcryptjs');
 
+// Importing models 
+const Users = require('../models/user');
+
+// Registers new user
 exports.postAddUser = async (req, res, next) => {
 
     const errors = validationResult(req);
@@ -55,6 +58,7 @@ exports.postAddUser = async (req, res, next) => {
     }
 }
 
+// Login existing user
 exports.loginUser = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -95,6 +99,7 @@ exports.loginUser = async (req, res, next) => {
             userId: user._id.toString(),
             role: user.role
         })
+        return;
     }
     catch (err) {
         if (!err.statusCode) {
@@ -105,32 +110,7 @@ exports.loginUser = async (req, res, next) => {
     }
 }
 
-// exports.postUpdateUser = (req, res, next) => {
-//     const uId = req.params.id;
-//     const name = req.body.name;
-
-//     Users.findById(uId)
-//         .then(user => {
-//             if (!user) {
-//                 throw new Error({ message: 'User doesn\'t exist.', status: 404 });
-//             }
-//             user.name = name
-//             user.email = user.email,
-//             user.password = user.password,
-//             user.role = role
-//             return user.save()
-//         })
-//         .then(success => {
-//             console.log('User Updated');
-//             return res.status(200).json({
-//                 message: 'User details Updated'
-//             })
-//         })
-//         .catch(err => {
-//             res.status(500).json({ message: 'Updating users failed' });
-//         })
-// }
-
+// Fetching wishlist
 exports.getAllFavList = async (req, res, next) => {
     const user = req.user;
 
@@ -168,6 +148,7 @@ exports.getAllFavList = async (req, res, next) => {
     }
 }
 
+// Add book to wishlist
 exports.addToFav = async (req, res, next) => {
     const bId = req.params.id;
     console.log(req.user);
@@ -197,6 +178,7 @@ exports.addToFav = async (req, res, next) => {
     }
 }
 
+// Remove book from wishlist
 exports.removeFromFav = async (req, res, next) => {
     const bId = req.params.id;
     const user = req.user;

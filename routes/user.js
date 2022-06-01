@@ -1,12 +1,17 @@
+// Importing Installed packages
 const express = require('express');
 const { check, body } = require('express-validator')
 
+// Db Models imported
 const Users = require('../models/user');
+
+// Controllers and middleware imported
 const userController = require('../controllers/user');
 const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
+// All users signup route
 router.post('/signup', [
     body('name')
         .isLength({ min: 4 })
@@ -33,6 +38,7 @@ router.post('/signup', [
         .trim()
 ], userController.postAddUser)
 
+// All users lgoin route
 router.post('/login', [
     body('email')
         .isEmail()
@@ -44,12 +50,14 @@ router.post('/login', [
         .trim()
 ], userController.loginUser)
 
-// router.put('/edit-user/:id', isAuth, userController.postUpdateUser)
-
+// Authenticated user's add to wishlist route
 router.patch('/add-favorite/:id', isAuth, userController.addToFav)
 
+// Authenticated user's remove from wishlist route
 router.patch('/remove-favorite/:id', isAuth, userController.removeFromFav)
 
+// Authenticated user's wishlist route
 router.get('/wishlist/books', isAuth, userController.getAllFavList)
 
+// exporting all the routes
 module.exports = router;

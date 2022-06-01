@@ -1,3 +1,4 @@
+// importing installed packages
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
@@ -23,6 +24,5 @@ module.exports = (req, res, next) => {
   req.user = decodedToken;
   req.role = decodedToken.role;
   req.userId = decodedToken.userId;
-  // console.log(req.user)
   next();
 };

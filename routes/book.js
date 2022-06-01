@@ -1,16 +1,21 @@
+// Importing Installed packages
 const express = require('express');
 const { check, body } = require('express-validator')
 
+// Importing controllers and authentication middleware
 const booksController = require('../controllers/book');
 const isAuth = require('../middleware/is-auth');
 const isAdmin = require('../middleware/is-admin');
 
 const router = express.Router();
 
+// Get All books routes without authentication
 router.get('/', booksController.getBooks)
 
+// Get book details by its id routes without authentication
 router.get('/:id', booksController.getBook)
 
+// Add book by admin routes after validating inputs
 router.post('/add-book', isAuth, isAdmin, [
     body('title')
         .isLength({ min: 3 })
@@ -29,6 +34,7 @@ router.post('/add-book', isAuth, isAdmin, [
         .withMessage('Should be at least 5 characters')
 ], booksController.postAddBook)
 
+// Edit book by admin routes after validating inputs
 router.put('/edit-book/:id', [
     body('title')
         .isLength({ min: 3 })
@@ -47,8 +53,10 @@ router.put('/edit-book/:id', [
         .withMessage('Should be at least 5 characters')
 ], isAdmin, booksController.postUpdateBook)
 
+// Delete book by admin routes
 router.delete('/delete-book/:id', isAuth, isAdmin, booksController.removeBook)
 
+// Search books with the keyword without authentication
 router.get('/search/:keyword', booksController.searchWithKeyword)
 
 module.exports = router;

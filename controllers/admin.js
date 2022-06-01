@@ -1,11 +1,14 @@
+// Importing database models
 const Users = require('../models/user');
 const Books = require('../models/book');
 
+// Fetch all the users
 exports.getUsers = async (req, res, next) => {
     const currentPage = req.query.page || 1;
     const itemsPerPage = 3;
 
     try {
+        // total no. of users count
         const totalusers = await Users.find().countDocuments()
                 
         const usersList = await Users.find()
@@ -31,6 +34,7 @@ exports.getUsers = async (req, res, next) => {
     }
 }
 
+// Fetch the details of the user
 exports.getUser = async (req, res, next) => {
     const uId = req.params.id;
 
@@ -55,6 +59,7 @@ exports.getUser = async (req, res, next) => {
     }
 }
 
+// Deletes the user
 exports.removeUser = async (req, res, next) => {
     const uId = req.params.id;
 
@@ -68,6 +73,9 @@ exports.removeUser = async (req, res, next) => {
             throw error;
         }
         await user.deleteOne({ _id: uId })
+
+        // Delete all the books with userId as uId
+        Books.deleteMany({userId: uId});
 
         console.log('User destroyed');
         res.status(200).json({
@@ -83,6 +91,7 @@ exports.removeUser = async (req, res, next) => {
     }
 }
 
+// Grants admin permission to user
 exports.grantAdminPermission = async (req, res, next) => {
     const id = req.params.id;
 
@@ -110,6 +119,7 @@ exports.grantAdminPermission = async (req, res, next) => {
     }
 }
 
+// Revoke admin permission from existing admin
 exports.revokeAdminPermission = async (req, res, next) => {
     const id = req.params.id;
 

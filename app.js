@@ -14,11 +14,7 @@ const userRoutes = require('./routes/user')
 const adminRoutes = require('./routes/admin')
 const errorRoutes = require('./routes/error')
 
-// models imports
-const Users = require('./models/user')
-
 const app = express();
-// app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 // error handling middleware
@@ -29,6 +25,7 @@ app.use((error, req, res, next) => {
     res.status(status).json({ message: message });
 });
 
+// routes configuration
 app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
 app.use('/books', bookRoutes);
