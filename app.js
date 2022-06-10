@@ -15,21 +15,21 @@ const adminRoutes = require('./routes/admin')
 const errorRoutes = require('./routes/error')
 
 const app = express();
+app.use(express.json());
 app.use(bodyParser.json())
-
-// error handling middleware
-app.use((error, req, res, next) => {
-    // console.log(error);
-    const status = error.statusCode || 500;
-    const message = error.message;
-    res.status(status).json({ message: message });
-});
 
 // routes configuration
 app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
 app.use('/books', bookRoutes);
 app.use(errorRoutes);
+
+// error handling middleware
+app.use((error, req, res, next) => {
+    const status = error.statusCode || 500;
+    const message = error.message;
+    res.status(status).json({ message: message });
+});
 
 // cors error fixing
 app.use((req, res, next) => {

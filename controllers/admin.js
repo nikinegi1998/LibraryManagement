@@ -1,6 +1,7 @@
 // Importing database models
 const Users = require('../models/user');
 const Books = require('../models/book');
+const Roles = require('../data');
 
 // Fetch all the users
 exports.getUsers = async (req, res, next) => {
@@ -104,11 +105,11 @@ exports.grantAdminPermission = async (req, res, next) => {
             throw error;
         }
 
-        user.role = 'ADMIN';
+        user.role = Roles.ADMIN;
         await user.save()
 
         res.status(200).json({
-            message: 'Updated admin permission'
+            message: 'Given admin permission'
         })
     }
     catch (err) {
@@ -133,7 +134,7 @@ exports.revokeAdminPermission = async (req, res, next) => {
             throw error;
         }
 
-        user.role = 'USER';
+        user.role = Roles.USER;
         await user.save()
 
         // const allBook = await Books.find({userId: user._id})
@@ -143,7 +144,7 @@ exports.revokeAdminPermission = async (req, res, next) => {
         await Books.deleteMany({ userId: uid })
 
         res.status(200).json({
-            message: 'Updated admin permission'
+            message: 'Removed admin permission'
         })
     }
     catch (err) {

@@ -2,7 +2,7 @@
 const mongoose  = require('mongoose');
 
 // files imported
-const Book = require('./book')
+const Book = require('./book');
 
 const Schema = mongoose.Schema;
 

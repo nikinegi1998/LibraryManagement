@@ -1,10 +1,14 @@
-module.exports = (req, res, next) => {
+module.exports = function isSuper(role){
+  return (req, res, next) => {
    
-  if(req.role !== 'SUPER ADMIN'){
-    const error = new Error('Not authenticated.');
-    error.statusCode = 401;
-    throw error;
+    if(req.role !== role){
+      const error = new Error('Not authenticated.');
+      error.statusCode = 401;
+      next(error);
+    }
+    
+    next();
   }
-  
-  next();
-};
+}
+
+
